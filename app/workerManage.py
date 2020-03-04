@@ -1,7 +1,7 @@
 import boto3
 import time
 
-from flask import current_app
+import app
 
 
 class WorkerManage:
@@ -16,11 +16,11 @@ class WorkerManage:
             MaxCount=1,
             MinCount=1,
             Monitoring={'enabled':True},
-            Placement={'AvailabilityZone':current_app.config.zone},
+            Placement={'AvailabilityZone':app.config.zone},
             SecurityGroupIds=[
-                current_app.config.security_group,
+                app.config.security_group,
             ],
-            SubnetId=current_app.config.subnet_id,
+            SubnetId=app.config.subnet_id,
             UserData='',
             TagSpecifications=[
                 {
@@ -28,13 +28,13 @@ class WorkerManage:
                     'Tags':[
                         {
                             'Key': 'Name',
-                            'Value': current_app.config.InstanceName
+                            'Value': app.config.InstanceName
                         },
 
                     ]
                 },
             ],
-            KeyName=current_app.config.keyname,
+            KeyName=app.config.keyname,
 
         )
 
@@ -54,7 +54,7 @@ class WorkerManage:
 
     def stopped_instances(self):
         return self.ec2.describe_instances(Filters=[
-                {'Name':'Tag:Name','Values':[current_app.config.InstanceName]},
+                {'Name':'Tag:Name','Values':[app.config.InstanceName]},
                 {'Name':'instance-state-name', 'Values':['stopped']}
             ])
 
