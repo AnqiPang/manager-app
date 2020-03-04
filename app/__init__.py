@@ -5,7 +5,7 @@ webapp = Flask(__name__)
 
 from app import ec2_examples
 from app import s3_examples
-
+from app import workerManage
 
 from app import main
 

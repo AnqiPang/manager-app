@@ -6,6 +6,8 @@ from app import config
 from datetime import datetime, timedelta
 from operator import itemgetter
 
+from app.workerManage import *
+
 
 @webapp.route('/ec2_examples',methods=['GET'])
 # Display an HTML list of all ec2 instances
@@ -122,21 +124,20 @@ def ec2_view(id):
 @webapp.route('/ec2_examples/create',methods=['POST'])
 # Start a new EC2 instance
 def ec2_create():
-
-    ec2 = boto3.resource('ec2')
-
-    ec2.create_instances(ImageId=config.ami_id, InstanceType="t2.micro", MinCount=1, MaxCount=1)
-
-    return redirect(url_for('ec2_list'))
-
+    worker_manage=WorkerManage()
+    [error, msg] = worker_manage.grow_worker()
+    if error:
+        return redirect(url_for('ec2_list', error=msg))
+    else:
+        return redirect(url_for('ec2_list',message='Grow one worker successfully!'))
 
 
 @webapp.route('/ec2_examples/delete/<id>',methods=['POST'])
 # Terminate a EC2 instance
-def ec2_destroy(id):
-    # create connection to ec2
-    ec2 = boto3.resource('ec2')
-
-    ec2.instances.filter(InstanceIds=[id]).terminate()
-
-    return redirect(url_for('ec2_list'))
+def ec2_delete(id):
+    worker_manage = WorkerManage()
+    [error, msg] = worker_manage.shrink_worker(id)
+    if error:
+        return redirect(url_for('ec2_list',error=msg))
+    else:
+        return  redirect((url_for('ec2_list', message='Shrink one worker successfully!')))
