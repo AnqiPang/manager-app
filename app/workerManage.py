@@ -28,7 +28,7 @@ class WorkerManage:
                     'Tags':[
                         {
                             'Key': 'Name',
-                            'Value': current_app.config.instance_name
+                            'Value': current_app.config.InstanceName
                         },
 
                     ]
@@ -54,7 +54,7 @@ class WorkerManage:
 
     def stopped_instances(self):
         return self.ec2.describe_instances(Filters=[
-                {'Name':'Tag:Name','Values':[current_app.config.instance_name]},
+                {'Name':'Tag:Name','Values':[current_app.config.InstanceName]},
                 {'Name':'instance-state-name', 'Values':['stopped']}
             ])
 
