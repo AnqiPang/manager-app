@@ -11,11 +11,11 @@ class WorkerManage:
 
     def new_ec2_instance(self):
         response = self.ec2.run_instances(
-            ImageId='ami_id',
+            ImageId=app.config.ami_id,
             InstanceType='t2.micro',
             MaxCount=1,
             MinCount=1,
-            Monitoring={'enabled':True},
+            Monitoring={'Enabled':True},
             Placement={'AvailabilityZone':app.config.zone},
             SecurityGroupIds=[
                 app.config.security_group,
@@ -54,10 +54,15 @@ class WorkerManage:
 
     def stopped_instances(self):
         return self.ec2.describe_instances(Filters=[
-                {'Name':'Tag:Name','Values':[app.config.InstanceName]},
+                {'Name':'tag:Name','Values':[app.config.InstanceName]},
                 {'Name':'instance-state-name', 'Values':['stopped']}
             ])
 
+    def runnning_instances(self):
+        return self.ec2.describe_instances(Filters=[
+            {'Name': 'tag:Name', 'Values': [app.config.InstanceName]},
+            {'Name': 'instance-state-name', 'Values': ['running']}
+        ])
 
     def grow_worker(self):
         stopped_instances =self.stopped_instances()['Reservations']
@@ -80,12 +85,14 @@ class WorkerManage:
         #self.register_target(new_instance_id)
         return [error, '']
 
-    def shrink_worker(self,InstanceId):
+    def shrink_worker(self):
+        running_instances =self.runnning_instances()['Reservations']
+        shrink_instance_id= running_instances[0]['Instances'][0]['InstanceId']
         error = False
-        if len(InstanceId) < 1:
+        if len(running_instances) < 1:
             error = True
             return [error, 'No more worker to shrink!']
         else:
-            self.stop_instance(InstanceId)
+            self.stop_instance(shrink_instance_id)
             return [error, '']
 

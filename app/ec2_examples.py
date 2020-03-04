@@ -135,9 +135,17 @@ def ec2_create():
 @webapp.route('/ec2_examples/delete/<id>',methods=['POST'])
 # Terminate a EC2 instance
 def ec2_delete(id):
+    ec2=boto3.resource('ec2')
+    ec2.instances.filter(InstanceIds=[id]).terminate()
+
+    return redirect(url_for('ec2_list'))
+
+
+@webapp.route('/ec2_examples/shrink',methods=['POST'])
+def ec2_shrink():
     worker_manage = WorkerManage()
-    [error, msg] = worker_manage.shrink_worker(id)
+    [error, msg] = worker_manage.shrink_worker()
     if error:
-        return redirect(url_for('ec2_list',error=msg))
+        return redirect(url_for('ec2_list', error=msg))
     else:
-        return  redirect((url_for('ec2_list', message='Shrink one worker successfully!')))
+        return redirect((url_for('ec2_list', message='Shrink one worker successfully!')))
