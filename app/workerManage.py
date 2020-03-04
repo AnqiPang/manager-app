@@ -53,23 +53,17 @@ class WorkerManage:
         self.ec2.terminate_instances(InstanceIds=[InstanceId])
 
     def stopped_instances(self):
-        instances = self.ec2.instances.filter(
-            Filters=[
+        return self.ec2.describe_instances(Filters=[
                 {'Name':'Tag:Name','Values':[current_app.config.instance_name]},
                 {'Name':'instance-state-name', 'Values':['stopped']}
-            ]
-        )
-        for instance in instances:
-            print("stopeed instances: ",instance.id)
-
-        return instances
+            ])
 
 
     def grow_worker(self):
-        stopped_instances =self.stopped_instances()
+        stopped_instances =self.stopped_instances()['Reservations']
         error=False
         if len(stopped_instances)>=1:
-            new_instance_id=stopped_instances[0].id
+            new_instance_id=stopped_instances[0]['Instances'][0]['InstanceId']
             self.start_instance(new_instance_id)
 
         else:
@@ -92,6 +86,6 @@ class WorkerManage:
             error = True
             return [error, 'No more worker to shrink!']
         else:
-            self.ec2.instances.filter(InstanceIds=[InstanceId]).terminate()
+            self.stop_instance(InstanceId)
             return [error, '']
 
