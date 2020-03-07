@@ -82,17 +82,57 @@ class WorkerManage:
         while status['InstanceStatuses'][0]['InstanceState']['Name'] != 'running':
             time.sleep(1)
             status = self.ec2.describe_instance_status(InstanceIds=[new_instance_id])
-        #self.register_target(new_instance_id)
+        self.register_one_target(new_instance_id)
         return [error, '']
 
     def shrink_worker(self):
-        running_instances =self.runnning_instances()['Reservations']
-        shrink_instance_id= running_instances[0]['Instances'][0]['InstanceId']
+        #running_instances =self.runnning_instances()['Reservations']
+        #shrink_instance_id= running_instances[0]['Instances'][0]['InstanceId']
+        target_instances_id = self.get_valid_target_instance()
         error = False
-        if len(running_instances) < 1:
+        if len(target_instances_id) < 1:
             error = True
             return [error, 'No more worker to shrink!']
         else:
-            self.stop_instance(shrink_instance_id)
+            self.stop_instance(target_instances_id[0])
+            self.deregister_one_target(target_instances_id[0])
             return [error, '']
+
+
+    def register_one_target(self,InstanceId):
+        #target_group_arn = app.config.target_group_arn
+        self.elb.register_targets(
+            TargetGroupArn = app.config.target_group_arn,
+            Targets = [
+                {
+                    'Id':InstanceId,
+                    'Port':5000,
+                },
+            ]
+        )
+
+    def deregister_one_target(self,InstanceId):
+        self.elb.deregister_targets(
+            TargetGroupArn=app.config.target_group_arn,
+            Targets=[
+                {
+                    'Id': InstanceId,
+                    'Port': 5000,
+                },
+            ]
+        )
+
+    def get_valid_target_instance(self):
+        target_instances_id = []
+        response = self.elb.describe_target_health(
+            TargetGroupArn = app.config.target_group_arn,
+        )
+        if 'TargetHealthDescriptions' in response:
+            for target in response['TargetHealthDescriptions']:
+                if target['TargetHealth']['State'] != 'draining':
+                    target_instances_id.append(target['Target']['Id'])
+        return target_instances_id
+
+    def get_instance_state(self,InstanceId):
+        return self.ec2.describe_instance_status(InstanceIds=[InstanceId])
 
