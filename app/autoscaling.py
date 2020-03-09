@@ -218,12 +218,12 @@ class AutoScalingManage:
 
     def grow_workers_by_ratio(self,ratio):
         #ratio = 2
-        current_targets_num = len(self.get_valid_target_instance())
-        grow_targets_num = math.ceil(current_targets_num * (ratio - 1))
+        current_targets = self.get_valid_target_instance()
+        grow_targets_num = math.ceil(len(current_targets) * (ratio - 1))
         error = False
         if ratio<=1:
             return "Invalid ratio. Please enter ratio > 1"
-        if current_targets_num<1:
+        if len(current_targets)<1:
             return "No target in target groupp"
         for i in grow_targets_num:
             self.grow_worker()
