@@ -5,61 +5,6 @@ import time
 import app
 import logging
 
-def get_autoscaling_params():
-    #CPU threshold for growing workers
-    #CPU threshold for shrinking workers
-    #expading ratio
-    #shrinking ratio
-    params =(80,20,2.00,2.00)
-    return params
-
-def get_time():
-    end_time = datetime.datetime.utcnow().isoformat()
-    start_time = (end_time - datetime.timedelta(minutes=2)).isoformat()
-    return start_time, end_time
-
-def get_cpu_utils():
-    ec2 = boto3.client('ec2')
-    elb = boto3.client('elbv2')
-    cloudwatch = boto3.client('cloudwatch')
-
-    record = get_autoscaling_params()
-    metric_name = 'CPUUtilization'
-    namespace = 'AWS/EC2'
-    statistic = 'Average'                   # could be Sum,Maximum,Minimum,SampleCount,Average
-
-    autoscaling_manage = AutoScalingManage()
-    target_instances_ids = autoscaling_manage.get_all_target_instance()
-    num_targets= 0
-    cpu_util_sum = 0
-    logging.warning('all_target_instances_id: {}'.format(target_instances_ids))
-    start_time, end_time = get_time()
-
-    for target in target_instances_ids:
-        instance_id = target
-        cpu = cloudwatch.get_metric_statistics(
-            Period=1 * 60,
-            StartTime=start_time,
-            EndTime=end_time,
-            MetricName=metric_name,
-            Namespace=namespace,  # Unit='Percent',
-            Statistics=[statistic],
-            Dimensions=[{'Name': 'InstanceId', 'Value': instance_id}]
-        )
-        try:
-            cpu_util_sum += cpu['Datapoints'][0]['Average']
-        except IndexError:
-            pass
-        num_targets += 1
-
-        return cpu_util_sum / num_targets
-
-
-
-
-
-
-
 
 
 #############
@@ -205,6 +150,66 @@ class AutoScalingManage:
 
     def get_instance_state(self,InstanceId):
         return self.ec2.describe_instance_status(InstanceIds=[InstanceId])
+
+
+
+    ############################
+    def get_autoscaling_params(self):
+        # CPU threshold for growing workers
+        # CPU threshold for shrinking workers
+        # expading ratio
+        # shrinking ratio
+        params = (80, 20, 2.00, 2.00)
+        return params
+
+    def get_time(self):
+        end_time = datetime.datetime.utcnow().isoformat()
+        start_time = (end_time - datetime.timedelta(minutes=2)).isoformat()
+        return start_time, end_time
+
+    def get_cpu_utils(self):
+        ec2 = boto3.client('ec2')
+        elb = boto3.client('elbv2')
+        cloudwatch = boto3.client('cloudwatch')
+
+        record = self.get_autoscaling_params()
+        metric_name = 'CPUUtilization'
+        namespace = 'AWS/EC2'
+        statistic = 'Average'  # could be Sum,Maximum,Minimum,SampleCount,Average
+
+        autoscaling_manage = AutoScalingManage()
+        target_instances_ids = autoscaling_manage.get_all_target_instance()
+        num_targets = 0
+        cpu_util_sum = 0
+        logging.warning('all_target_instances_id: {}'.format(target_instances_ids))
+        start_time, end_time = self.get_time()
+
+        for target in target_instances_ids:
+            instance_id = target
+            cpu = cloudwatch.get_metric_statistics(
+                Period=1 * 60,
+                StartTime=start_time,
+                EndTime=end_time,
+                MetricName=metric_name,
+                Namespace=namespace,  # Unit='Percent',
+                Statistics=[statistic],
+                Dimensions=[{'Name': 'InstanceId', 'Value': instance_id}]
+            )
+            print(cpu)
+            try:
+                cpu_util_sum += cpu['Datapoints'][0]['Average']
+                num_targets += 1
+            except IndexError:
+                pass
+            # num_targets += 1
+
+            return cpu_util_sum / num_targets
+
+
+
+
+
+
 
 
 
