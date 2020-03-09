@@ -180,6 +180,7 @@ class AutoScalingManage:
         autoscaling_manage = AutoScalingManage()
         #target_instances_ids = autoscaling_manage.get_all_target_instance()
         target_instances_ids = autoscaling_manage.get_valid_target_instance()
+
         num_targets = 0
         cpu_util_sum = 0
         cpu_util_avg = 0
@@ -197,17 +198,20 @@ class AutoScalingManage:
                 Statistics=[statistic],
                 Dimensions=[{'Name': 'InstanceId', 'Value': instance_id}]
             )
-            print(cpu)
+            print("instance id: ", instance_id)
+            print("cpu utils: ", cpu)
             try:
                 cpu_util_sum += cpu['Datapoints'][0]['Average']
                 num_targets += 1
             except IndexError:
                 pass
             # num_targets += 1
-            print("average cpu: ", cpu_util_sum/num_targets)
-            if num_targets:
-                return cpu_util_sum/num_targets
-            return 0
+
+        print("average cpu: ", cpu_util_sum/num_targets)
+
+        if num_targets:
+            return cpu_util_sum/num_targets
+        return 0
 
 
 
