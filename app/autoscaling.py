@@ -225,7 +225,7 @@ class AutoScalingManage:
             return "Invalid ratio. Please enter ratio > 1"
         if len(current_targets)<1:
             return "No target in target groupp"
-        for i in grow_targets_num:
+        for i in range(grow_targets_num):
             self.grow_worker()
         return [error,'']
 
