@@ -1,6 +1,6 @@
 import pymysql
 import boto3
-import datetime
+from datetime import datetime, timedelta
 import time
 import app
 import logging
@@ -182,14 +182,14 @@ class AutoScalingManage:
         num_targets = 0
         cpu_util_sum = 0
         logging.warning('all_target_instances_id: {}'.format(target_instances_ids))
-        start_time, end_time = self.get_time()
+        #start_time, end_time = self.get_time()
 
         for target in target_instances_ids:
             instance_id = target
             cpu = cloudwatch.get_metric_statistics(
                 Period=1 * 60,
-                StartTime=start_time,
-                EndTime=end_time,
+                StartTime=datetime.utcnow() - timedelta(seconds=2 * 60),
+                EndTime=datetime.utcnow() - timedelta(seconds=0 * 60),
                 MetricName=metric_name,
                 Namespace=namespace,  # Unit='Percent',
                 Statistics=[statistic],
