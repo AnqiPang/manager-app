@@ -178,7 +178,8 @@ class AutoScalingManage:
         statistic = 'Average'  # could be Sum,Maximum,Minimum,SampleCount,Average
 
         autoscaling_manage = AutoScalingManage()
-        target_instances_ids = autoscaling_manage.get_all_target_instance()
+        #target_instances_ids = autoscaling_manage.get_all_target_instance()
+        target_instances_ids = autoscaling_manage.get_valid_target_instance()
         num_targets = 0
         cpu_util_sum = 0
         logging.warning('all_target_instances_id: {}'.format(target_instances_ids))
@@ -202,8 +203,8 @@ class AutoScalingManage:
             except IndexError:
                 pass
             # num_targets += 1
-
-            return cpu_util_sum / num_targets
+            print("average cpu: ", cpu_util_sum/num_targets)
+            return cpu_util_sum / num_targets if num_targets else 0
 
 
 
