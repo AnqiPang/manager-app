@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from operator import itemgetter
 
 from app.workerManage import *
-
+from app.autoscaling import *
 
 @webapp.route('/ec2_examples',methods=['GET'])
 # Display an HTML list of all ec2 instances
@@ -149,3 +149,9 @@ def ec2_shrink():
         return redirect(url_for('ec2_list', error=msg))
     else:
         return redirect((url_for('ec2_list', message='Shrink one worker successfully!')))
+
+@webapp.route('/ec2_examples/autoscaling',methods=['POST'])
+def ec2_autoscaling():
+    autoscaling_manage = AutoScalingManage()
+    autoscaling_manage.get_cpu_utils()
+    return redirect(url_for('ec2_list'))

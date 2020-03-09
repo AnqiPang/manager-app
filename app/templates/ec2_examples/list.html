@@ -10,6 +10,10 @@
         <input type="submit" value="Shrink">
     </form>
 
+    <form action="{{url_for('ec2_autoscaling')}}" method="post">
+        <input type="submit" value="AutoScale">
+    </form>
+
     <table />
     <thead>
        <th>ID</th>

@@ -90,7 +90,7 @@ class WorkerManage:
         #shrink_instance_id= running_instances[0]['Instances'][0]['InstanceId']
         target_instances_id = self.get_valid_target_instance()
         error = False
-        if len(target_instances_id) < 1:
+        if len(target_instances_id) < 2:
             error = True
             return [error, 'No more worker to shrink!']
         else:
