@@ -14,6 +14,10 @@
         <input type="submit" value="AutoScale">
     </form>
 
+    <form action="{{url_for('ec2_autogrow')}}" method="post">
+        <input type="submit" value="AutoGrow">
+    </form>
+
     <table />
     <thead>
        <th>ID</th>

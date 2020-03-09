@@ -8,6 +8,7 @@ from operator import itemgetter
 
 from app.workerManage import *
 from app.autoscaling import *
+from app.autoscaling import *
 
 @webapp.route('/ec2_examples',methods=['GET'])
 # Display an HTML list of all ec2 instances
@@ -155,3 +156,13 @@ def ec2_autoscaling():
     autoscaling_manage = AutoScalingManage()
     autoscaling_manage.get_cpu_utils()
     return redirect(url_for('ec2_list'))
+
+@webapp.route('/ec2_examples/autogrow',methods=['POST'])
+# Start a new EC2 instance
+def ec2_autogrow():
+    autoscaling_manage=AutoScalingManage()
+    [error, msg] = autoscaling_manage.grow_workers_by_ratio()
+    if error:
+        return redirect(url_for('ec2_list', error=msg))
+    else:
+        return redirect(url_for('ec2_list',message='Grow workers successfully!'))

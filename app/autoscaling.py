@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import time
 import app
 import logging
+import math
 
 
 
@@ -86,7 +87,7 @@ class AutoScalingManage:
         while status['InstanceStatuses'][0]['InstanceState']['Name'] != 'running':
             time.sleep(1)
             status = self.ec2.describe_instance_status(InstanceIds=[new_instance_id])
-        self.register_one_target(new_instance_id)
+        response = self.register_one_target(new_instance_id)
         return [error, '']
 
     def shrink_worker(self):
@@ -105,7 +106,7 @@ class AutoScalingManage:
 
     def register_one_target(self,InstanceId):
         #target_group_arn = app.config.target_group_arn
-        self.elb.register_targets(
+        response =  self.elb.register_targets(
             TargetGroupArn = app.config.target_group_arn,
             Targets = [
                 {
@@ -114,6 +115,7 @@ class AutoScalingManage:
                 },
             ]
         )
+        return response
 
     def deregister_one_target(self,InstanceId):
         self.elb.deregister_targets(
@@ -152,8 +154,7 @@ class AutoScalingManage:
         return self.ec2.describe_instance_status(InstanceIds=[InstanceId])
 
 
-
-    ############################
+############################
     def get_autoscaling_params(self):
         # CPU threshold for growing workers
         # CPU threshold for shrinking workers
@@ -212,6 +213,22 @@ class AutoScalingManage:
         if num_targets:
             return cpu_util_sum/num_targets
         return 0
+
+
+
+    def grow_workers_by_ratio(self,ratio):
+        ratio = 2
+        current_targets_num = self.get_valid_target_instance()
+        grow_targets_num = math.ceil(current_targets_num * (ratio - 1))
+        error = False
+        if ratio<=1:
+            return "Invalid ratio. Please enter ratio > 1"
+        if len(current_targets_num)<1:
+            return "No target in target groupp"
+        for i in grow_targets_num:
+            self.grow_worker()
+        return [error,'']
+
 
 
 
