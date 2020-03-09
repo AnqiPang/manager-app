@@ -161,7 +161,7 @@ def ec2_autoscaling():
 # Start a new EC2 instance
 def ec2_autogrow():
     autoscaling_manage=AutoScalingManage()
-    [error, msg] = autoscaling_manage.grow_workers_by_ratio(2)
+    [error, msg] = autoscaling_manage.grow_workers_by_ratio(2.00)
     if error:
         return redirect(url_for('ec2_list', error=msg))
     else:

@@ -217,7 +217,7 @@ class AutoScalingManage:
 
 
     def grow_workers_by_ratio(self,ratio):
-        ratio = 2
+        #ratio = 2
         current_targets_num = self.get_valid_target_instance()
         grow_targets_num = math.ceil(current_targets_num * (ratio - 1))
         error = False
