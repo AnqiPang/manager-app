@@ -182,6 +182,7 @@ class AutoScalingManage:
         target_instances_ids = autoscaling_manage.get_valid_target_instance()
         num_targets = 0
         cpu_util_sum = 0
+        cpu_util_avg = 0
         logging.warning('all_target_instances_id: {}'.format(target_instances_ids))
         #start_time, end_time = self.get_time()
 
@@ -204,8 +205,9 @@ class AutoScalingManage:
                 pass
             # num_targets += 1
             print("average cpu: ", cpu_util_sum/num_targets)
-            return cpu_util_sum / num_targets if num_targets else 0
-
+            if num_targets:
+                return cpu_util_sum/num_targets
+            return 0
 
 
 
