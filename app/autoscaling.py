@@ -95,7 +95,7 @@ class AutoScalingManage:
         #shrink_instance_id= running_instances[0]['Instances'][0]['InstanceId']
         target_instances_id = self.get_valid_target_instance()
         error = False
-        if len(target_instances_id) < 1:
+        if len(target_instances_id) < 2:
             error = True
             return [error, 'No more worker to shrink!']
         else:
@@ -220,16 +220,54 @@ class AutoScalingManage:
         #ratio = 2
         current_targets = self.get_valid_target_instance()
         grow_targets_num = math.ceil(len(current_targets) * (ratio - 1))
+        expected_targets_num = current_targets + grow_targets_num
         error = False
+
         if ratio<=1:
             error = True
             return [error, "Invalid ratio. Please enter ratio > 1"]
+
+        if len(current_targets) == 10:
+            error = True
+            return [error, "Worker pool size limit is reached"]
         if len(current_targets)<1:
             error = True
             return [error, "No target in target group"]
+        if expected_targets_num > 10 :
+            grow_targets_num = 10 - len(current_targets)
+
+
         for i in range(grow_targets_num):
             self.grow_worker()
         return [error,'']
+
+
+    def shrink_workers_by_ratio(self,ratio):
+        current_targets = self.get_valid_target_instance()#current_targets_ids
+        expected_targets_num = math.floor(len(current_targets) * ratio)
+        error = False
+        if ratio > 1:
+            error = True
+            return [error, 'Shrink ratio should be less than 1']
+        elif len(current_targets) == 10:
+            error = True
+            return [error, "Worker pool size limit is reached"]
+        elif len(current_targets)< 2:
+            error = True
+            return [error, "No more worker to shrink "]
+        elif expected_targets_num <=1 :
+            #shrink_targets_num = current_targets - expected_targets_num
+            expected_targets_num = 1
+            shrink_targets_num = len(current_targets) - expected_targets_num
+        else:
+            shrink_targets_num = len(current_targets) - expected_targets_num
+
+        if shrink_targets_num:
+            for i in range(shrink_targets_num):
+                self.shrink_worker()
+
+        return [error, '']
+
 
 
 
