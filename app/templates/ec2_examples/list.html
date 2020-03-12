@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
 
+    <style>
+        .input[type=submit] {
+        padding:5px 15px;
+        background:#ccc;
+        border:0 none;
+        cursor:pointer;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+    }
+    </style>
+
     <form action="{{url_for('ec2_create')}}" method="post">
         <input type="submit" value="Grow">
     </form>
