@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
 
+    <style>
+        .input[type=submit] {
+        padding:5px 15px;
+        background:#ccc;
+        border:0 none;
+        cursor:pointer;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+    }
+        </style>
+
     <ul>
         <li><a href="{{url_for('ec2_list')}}">EC2 Examples</a></li>
         <li><a href="{{url_for('s3_list')}}">S3 Examples</a></li>
