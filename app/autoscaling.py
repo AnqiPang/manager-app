@@ -214,8 +214,117 @@ class AutoScalingManage:
             return cpu_util_sum/num_targets
         return 0
 
+    #def start_multi_instances(self):
+
+"""
+    def grow_workers_by_ratio(self, ratio):
+        current_targets_num = len(self.get_valid_target_instance())
+        grow_targets_num = math.ceil(current_targets_num * (ratio - 1))
+        expected_targets_num = current_targets_num  + grow_targets_num
+        error = False
+        stopped_instances = self.stopped_instances()['Reservation']
+        stopped_instances_num = len(stopped_instances)
+
+        if current_targets_num>=10:
+            error = True
+            return [error, "Reach worker pool limit"]
+        if expected_targets_num > 10:
+            #error = True
+            grow_targets_num = 10 - current_targets_num
+
+        if stopped_instances_num>=1:
+            if stopped_instances_num >= grow_targets_num:
+                new_instances_id = []
+                for i in range(stopped_instances_num):
+                    new_instances_id.append(stopped_instances[i]['Instances'][0]['InstancesId'])#why
+                self.ec2.start_instances(InstanceIds=new_instances_id)
+                status = self.ec2.describe_instance_status(InstanceIds=new_instances_id)
+
+                while len(status['InstanceStatuses']) < len(new_instances_id):
+                    time.sleep(1)
+                    status = self.ec2.describe_instance_status(InstanceIds=new_instances_id)
+                for i in range(len(new_instances_id)):
+                    while status['InstanceStatuses'][i]['InstanceState']['Name'] != 'running':
+                        time.sleep(1)
+                        status = self.ec2.describe_instance_status(InstanceIds=new_instances_id)
+                    response = self.register_one_target(new_instances_id)
+                for id in range(new_instances_id):
+                    self.register_one_target(id)
+
+            else: #stopped_instances<grow_targets_num
+                new_instances_id = []
+                for i in range(stopped_instances_num):
+                    new_instances_id.append(stopped_instances_num[i]['Instances'][0]['InstancesId'])
+                self.ec2.start_instances(InstanceIds=new_instances_id)
+
+                rest_num = grow_targets_num- len(stopped_instances_num)
+
+                for i in range(rest_num):
+                    new_id = self.new_ec2_instance()
+                    new_instances_id.append(new_id)
+
+                status = self.ec2.describe_instance_status(InstanceIds=new_instances_id)
+
+                while len(status['InstanceStatuses']) < len(new_instances_id):
+                    time.sleep(1)
+                    status = self.ec2.describe_instance_status(InstanceIds=new_instances_id)
+                for i in range(len(new_instances_id)):
+                    while status['InstanceStatuses'][i]['InstanceState']['Name'] != 'running':
+                        time.sleep(1)
+                        status = self.ec2.describe_instance_status(InstanceIds=new_instances_id)
+                    response = self.register_one_target(new_instances_id)
+                for id in range(new_instances_id):
+                    self.register_one_target(id)
+
+        else:#no stopped instance
+            new_instances_id = []
+            for i in range(grow_targets_num):
+                new_id = self.new_ec2_instance()
+                new_instances_id.append(new_id)
+
+            status = self.ec2.describe_instance_status(InstanceIds=new_instances_id)
+
+            while len(status['InstanceStatuses']) < len(new_instances_id):
+                time.sleep(1)
+                status = self.ec2.describe_instance_status(InstanceIds=new_instances_id)
+            for i in range(len(new_instances_id)):
+                while status['InstanceStatuses'][i]['InstanceState']['Name'] != 'running':
+                    time.sleep(1)
+                    status = self.ec2.describe_instance_status(InstanceIds=new_instances_id)
+                response = self.register_one_target(new_instances_id)
+            for id in range(new_instances_id):
+                self.register_one_target(id)
+        return [error,'']
 
 
+    def shrink_workers_by_ratio(self,ratio):
+        current_targets_id = self.get_valid_target_instance()
+        current_targets_num = len(current_targets_id)  # current_targets_ids
+        expected_targets_num = math.floor(len(current_targets_num) * ratio)
+        shrink_targets_num = current_targets_num - expected_targets_num
+        error = False
+        if current_targets_num <= 1:
+            error =True
+            return [error,'No more worker to shrink']
+        if expected_targets_num <= 1:
+            shrink_targets_num = current_targets_num - 1
+
+        for i in range(shrink_targets_num):
+            self.deregister_one_target(InstanceId=current_targets_id[i])
+            self.ec2.stop_instances(InstanceIds=current_targets_num[i])
+            time.sleep(1)
+
+        return [error,'']
+        
+"""
+
+
+
+
+
+
+
+"""
     def grow_workers_by_ratio(self,ratio):
         #ratio = 2
         current_targets = self.get_valid_target_instance()
@@ -235,7 +344,6 @@ class AutoScalingManage:
             return [error, "No target in target group"]
         if expected_targets_num > 10 :
             grow_targets_num = 10 - len(current_targets)
-
 
         for i in range(grow_targets_num):
             self.grow_worker()
@@ -268,7 +376,7 @@ class AutoScalingManage:
 
         return [error, '']
 
-
+"""
 
 
 

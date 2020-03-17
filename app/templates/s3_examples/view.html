@@ -1,5 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
+    <style>
+    input[type=submit] {
+    padding: 10px 20px 11px !important;
+    font-size: 21px !important;
+    background-color: #337ab7;
+    font-weight: bold;
+    text-shadow: 1px 1px #337ab7;
+    color: #ffffff;
+    border-radius: 100px;
+    -moz-border-radius: 100px;
+    -webkit-border-radius: 100px;
+    border: 1px solid #337ab7;
+    cursor: pointer;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+    -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+    }
+    </style>
+
     <form action='{{url_for("s3_list")}}' method='get'>
         <input type='submit' value='Back' />
     </form>
